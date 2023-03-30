@@ -5,9 +5,26 @@ from werkzeug.exceptions import abort
 from wtforms.fields import DateTimeField
 from flaskr.auth import login_required
 from flaskr.db import get_db
-from flaskr.messager import send_text
+from wtforms import Form, StringField, validators
+import re
+
 
 bp = Blueprint('blog', __name__)
+date_regex = r"^(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])\/\d{4}$"
+time_regex = r"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
+
+class RegistrationForm(Form):
+    date = StringField('Date', [validators.Regexp(regex=date_regex, message="Must match date format 'MM/DD/YYYY'")])
+    time = StringField('Time', [validators.Regexp(regex=time_regex, message="Must match time format 'HH/MM/SS'")])
+
+
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ), 'error')
 
 
 @bp.route('/')
@@ -31,31 +48,6 @@ def index():
 
     return render_template('blog/index.html', posts=posts, total_post_count=total_post_count, total_user_count=total_user_count)
 
-
-@bp.route('/create', methods=('GET', 'POST'))
-@login_required
-def create():
-    if request.method == 'POST':
-        title = request.form['title']
-        body = request.form['body']
-        error = None
-
-        if not title:
-            error = 'Title is required.'
-
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO post (title, body, author_id)'
-                ' VALUES (?, ?, ?)',
-                (title, body, g.user['id'])
-            )
-            db.commit()
-            return redirect(url_for('blog.index'))
-
-    return render_template('blog/create.html')
 
 
 def get_post(id, check_author=True):
@@ -114,30 +106,44 @@ def delete(id):
 
 
 @bp.route('/calendar', methods=('GET', 'POST'))
-def calendar():
+async def calendar():
+    form = RegistrationForm(request.form)
     if request.method == 'POST':
-        date = request.form['date']
-        time = request.form['time']
-        error = None
-
-        if not date:
-            error = 'Date is required.'
-        if not time:
-            error = 'Time is required.'
-
-        if error is not None:
-            flash(error)
+        if not form.validate():
+            flash_errors(form)    
+            return redirect(url_for('blog.calendar', form=form))
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO post (title, body, author_id)'
+                'INSERT INTO alarm (date, time, author_id)'
                 ' VALUES (?, ?, ?)',
-                (date, time, g.user['id'])
+                (form.date.data, form.time.data, g.user['id'])
             )
             db.commit()
             return redirect(url_for('blog.index'))
-   
-    return render_template('blog/calendar.html')
+
+    # if request.method == 'POST':
+    #     date = request.form['date']
+    #     time = request.form['time']
+    #     error = None
+    #     if not date:
+    #         error = 'Date is required.'
+    #     if not time:
+    #         error = 'Time is required.'
+
+    #     if error is not None:
+    #         flash(error)
+    #     else:
+    #         db = get_db()
+    #         db.execute(
+    #             'INSERT INTO post (title, body, author_id)'
+    #             ' VALUES (?, ?, ?)',
+    #             (date, time, g.user['id'])
+    #         )
+    #         db.commit()
+    #         return redirect(url_for('blog.index'))
+
+    return render_template('blog/calendar.html', form=form)
 
 
 @bp.route('/delete-all-alarms', methods=('GET', 'POST'))
@@ -146,7 +152,5 @@ def delete_all_alarms():
     db = get_db()
     db.execute('DELETE FROM post WHERE author_id = ?', (g.user['id'],))
     db.commit()
-    send_text({'message': 'test',
-               "phone": '14255022930'})
     return redirect(url_for('blog.index'))
 

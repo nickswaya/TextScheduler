@@ -1,8 +1,7 @@
 import os
 from . import db, auth, blog, scheduler
 from flask import Flask
-from flask_bootstrap import Bootstrap
-from flask_datepicker import datepicker
+
 
 def create_app(test_config=None):
     # create and configure the app
@@ -30,10 +29,6 @@ def create_app(test_config=None):
     app.register_blueprint(blog.bp)
     app.register_blueprint(scheduler.bp)
     app.add_url_rule('/', endpoint='index')
-    
-
-    Bootstrap(app)
-    datepicker(app)
 
     return app
 

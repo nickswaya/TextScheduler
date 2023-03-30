@@ -22,6 +22,6 @@ CREATE TABLE alarm (
   author_id INTEGER NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT (datetime('now','localtime')),
   date TEXT NOT NULL,
-  body TEXT NOT NULL,
+  time TEXT NOT NULL,
   FOREIGN KEY (author_id) REFERENCES user (id)
 );

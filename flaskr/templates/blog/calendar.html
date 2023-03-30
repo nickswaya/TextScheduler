@@ -12,4 +12,14 @@
     <input name="time" id="time" value="{{ request.form['time'] }}" required>
     <input type="submit" value="Save">
   </form>
+
+
+  {% from "formhelpers.html" import render_field %}
+    <form method=post>
+      <dl>
+        {{ render_field(form.date) }}
+        {{ render_field(form.time) }}
+      </dl>
+      <p><input type=submit value=Save>
+    </form>
 {% endblock %}
