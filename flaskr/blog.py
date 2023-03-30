@@ -6,15 +6,16 @@ from wtforms.fields import DateTimeField
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from wtforms import Form, StringField, validators
-import re
+from datetime import datetime
 
 
 bp = Blueprint('blog', __name__)
+
 date_regex = r"^(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])\/\d{4}$"
 time_regex = r"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 
 class RegistrationForm(Form):
-    date = StringField('Date', [validators.Regexp(regex=date_regex, message="Must match date format 'MM/DD/YYYY'")])
+    date = StringField('Date', [validators.Regexp(regex=date_regex, message="Must match date format 'MM/DD/YYYY'")], description="Enter as MM/DD/YYYY")
     time = StringField('Time', [validators.Regexp(regex=time_regex, message="Must match time format 'HH/MM/SS'")])
 
 
@@ -107,11 +108,14 @@ def delete(id):
 
 @bp.route('/calendar', methods=('GET', 'POST'))
 async def calendar():
+    date_placeholder = datetime.strftime(datetime.now(), "%m/%d/%Y")
+    time_placeholder = datetime.strftime(datetime.now(), "%H:%M:%S")
+
     form = RegistrationForm(request.form)
     if request.method == 'POST':
         if not form.validate():
             flash_errors(form)    
-            return redirect(url_for('blog.calendar', form=form))
+            return redirect(url_for('blog.calendar', form=form, date_placeholder=date_placeholder, time_placeholder=time_placeholder))
         
         else:
             db = get_db()
@@ -123,14 +127,14 @@ async def calendar():
             db.commit()
             return redirect(url_for('blog.index'))
         
-    return render_template('blog/calendar.html', form=form)
+    return render_template('blog/calendar.html', form=form, date_placeholder=date_placeholder, time_placeholder=time_placeholder)
 
 
 @bp.route('/delete-all-alarms', methods=('GET', 'POST'))
 def delete_all_alarms():
     print(g.user['id'])
     db = get_db()
-    db.execute('DELETE FROM post WHERE author_id = ?', (g.user['id'],))
+    db.execute('DELETE FROM alarm WHERE author_id = ?', (g.user['id'],))
     db.commit()
     return redirect(url_for('blog.index'))
 

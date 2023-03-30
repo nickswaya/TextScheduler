@@ -2,6 +2,7 @@
 
 {% block header %}
   <h1>{% block title %}Enter Date and Time{% endblock %}</h1>
+  <h3 style="color: red":>Please Match Example Time and Date Format</h3>
 {% endblock %}
 
 {% block content %}
@@ -17,8 +18,8 @@
   {% from "formhelpers.html" import render_field %}
     <form method=post>
       <dl>
-        {{ render_field(form.date) }}
-        {{ render_field(form.time) }}
+        {{ render_field(form.date, value=date_placeholder) }}
+        {{ render_field(form.time, value=time_placeholder) }}
       </dl>
       <p><input type=submit value=Save>
     </form>

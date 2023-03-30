@@ -26,15 +26,3 @@ def send_text(alarm):
                  )
     print(message.sid)
 
-
-import re
-
-date_regex = r"^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])-\d{4}$"
-date_string = "03/30/2023"
-if re.match(date_regex, date_string):
-    print("Valid date")
-else:
-    print("Invalid date")
-
-
-
