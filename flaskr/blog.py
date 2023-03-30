@@ -31,14 +31,14 @@ def flash_errors(form):
 def index():
     db = get_db()
     posts = db.execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
+        'SELECT a.id, date, time, created, author_id, username'
+        ' FROM alarm a JOIN user u ON a.author_id = u.id'
         ' ORDER BY created DESC'
     ).fetchall()
 
-    total_post_count = db.execute(
-        'SELECT COUNT(p.id) as count'
-        ' FROM post p'
+    total_alarm_count = db.execute(
+        'SELECT COUNT(a.id) as count'
+        ' FROM alarm a'
     ).fetchall()[0]
 
     total_user_count = db.execute(
@@ -46,7 +46,7 @@ def index():
         ' FROM user u'
     ).fetchall()[0]
 
-    return render_template('blog/index.html', posts=posts, total_post_count=total_post_count, total_user_count=total_user_count)
+    return render_template('blog/index.html', posts=posts, total_user_count=total_user_count, total_alarm_count=total_alarm_count)
 
 
 
@@ -112,6 +112,7 @@ async def calendar():
         if not form.validate():
             flash_errors(form)    
             return redirect(url_for('blog.calendar', form=form))
+        
         else:
             db = get_db()
             db.execute(
@@ -121,28 +122,7 @@ async def calendar():
             )
             db.commit()
             return redirect(url_for('blog.index'))
-
-    # if request.method == 'POST':
-    #     date = request.form['date']
-    #     time = request.form['time']
-    #     error = None
-    #     if not date:
-    #         error = 'Date is required.'
-    #     if not time:
-    #         error = 'Time is required.'
-
-    #     if error is not None:
-    #         flash(error)
-    #     else:
-    #         db = get_db()
-    #         db.execute(
-    #             'INSERT INTO post (title, body, author_id)'
-    #             ' VALUES (?, ?, ?)',
-    #             (date, time, g.user['id'])
-    #         )
-    #         db.commit()
-    #         return redirect(url_for('blog.index'))
-
+        
     return render_template('blog/calendar.html', form=form)
 
 

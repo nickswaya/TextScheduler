@@ -5,14 +5,13 @@
     <table border="1" 
            style="margin-top:10px; margin-right:100px;">
         <caption>Site Details</caption>
-  
-        <tr>
-            <td>Total Post Count:</td>
-            <td>{{ total_post_count['count'] }}</td>
-        </tr>
         <tr>
             <td>Total User Count:</td>
             <td>{{ total_user_count['count'] }}</td>
+        </tr>
+        <tr>
+          <td>Total Alarm Count:</td>
+          <td>{{ total_alarm_count['count'] }}</td>
         </tr>
     </table>
   {% if g.user %}
@@ -30,14 +29,14 @@
         
         <div>
           {% if g.user['id'] == post['author_id'] %}
-          <h1>{{ post['title'] }}</h1>
+          <h1>{{ post['date'] }} : {{ post['time'] }}</h1>
           <div class="about">created by {{ post['username'] }} on {{ post['created'].strftime('%m-%d-%Y %H:%M:%S') }}</div>
         </div>
         {% if g.user['id'] == post['author_id'] %}
           <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
         {% endif %}
       </header>
-      <p class="body">{{ post['body'] }}</p>
+      <!-- <p class="time">{{ post['time'] }}</p> -->
       {% endif %}
     </article>
     {% if not loop.last %}
