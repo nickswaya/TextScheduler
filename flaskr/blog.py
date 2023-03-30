@@ -17,7 +17,7 @@ time_regex = r"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 class RegistrationForm(Form):
     date = StringField('Date', [validators.Regexp(regex=date_regex, message="Must match date format 'MM/DD/YYYY'")], description="Enter as MM/DD/YYYY")
     time = StringField('Time', [validators.Regexp(regex=time_regex, message="Must match time format 'HH/MM/SS'")])
-
+    body = StringField('Alarm Note')
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -110,24 +110,24 @@ def delete(id):
 async def calendar():
     date_placeholder = datetime.strftime(datetime.now(), "%m/%d/%Y")
     time_placeholder = datetime.strftime(datetime.now(), "%H:%M:%S")
-
+    body_placeholder = "Alarm Note to be sent"
     form = RegistrationForm(request.form)
     if request.method == 'POST':
         if not form.validate():
             flash_errors(form)    
-            return redirect(url_for('blog.calendar', form=form, date_placeholder=date_placeholder, time_placeholder=time_placeholder))
+            return redirect(url_for('blog.calendar', form=form, date_placeholder=date_placeholder, time_placeholder=time_placeholder, body_placeholder=body_placeholder))
         
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO alarm (date, time, author_id)'
-                ' VALUES (?, ?, ?)',
-                (form.date.data, form.time.data, g.user['id'])
+                'INSERT INTO alarm (date, time, author_id, body)'
+                ' VALUES (?, ?, ?, ?)',
+                (form.date.data, form.time.data, g.user['id'], form.body.data)
             )
             db.commit()
             return redirect(url_for('blog.index'))
         
-    return render_template('blog/calendar.html', form=form, date_placeholder=date_placeholder, time_placeholder=time_placeholder)
+    return render_template('blog/calendar.html', form=form, date_placeholder=date_placeholder, time_placeholder=time_placeholder,body_placeholder=body_placeholder)
 
 
 @bp.route('/delete-all-alarms', methods=('GET', 'POST'))
