@@ -1,5 +1,5 @@
 import os
-from . import db, auth, blog, scheduler
+from . import db, auth, blog
 from flask import Flask
 
 
@@ -27,7 +27,6 @@ def create_app(test_config=None):
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
-    app.register_blueprint(scheduler.bp)
     app.add_url_rule('/', endpoint='index')
 
     return app
