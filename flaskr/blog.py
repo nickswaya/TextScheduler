@@ -14,6 +14,10 @@ bp = Blueprint('blog', __name__)
 date_regex = r"^(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])\/\d{4}$"
 time_regex = r"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 
+def dict_from_row(row):
+    return dict(zip(row.keys(), row))
+
+
 class RegistrationForm(Form):
     date = StringField('Date', [validators.Regexp(regex=date_regex, message="Must match date format 'MM/DD/YYYY'")], description="Enter as MM/DD/YYYY")
     time = StringField('Time', [validators.Regexp(regex=time_regex, message="Must match time format 'HH/MM/SS'")])
@@ -53,9 +57,9 @@ def index():
 
 def get_post(id, check_author=True):
     post = get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?',
+        'SELECT a.id, date, time, created, author_id, username, a.body'
+        ' FROM alarm a JOIN user u ON a.author_id = u.id'
+        ' WHERE a.id = ?',
         (id,)
     ).fetchone()
 
@@ -72,28 +76,23 @@ def get_post(id, check_author=True):
 @login_required
 def update(id):
     post = get_post(id)
-
+    form = RegistrationForm(request.form)
+    row_dict = dict_from_row(post)
     if request.method == 'POST':
-        title = request.form['title']
-        body = request.form['body']
-        error = None
-
-        if not title:
-            error = 'Title is required.'
-
-        if error is not None:
-            flash(error)
+        if not form.validate():
+            flash_errors(form)    
+            return redirect(url_for('blog.update', form=form, last_date=row_dict['date'], last_time=row_dict['time'], last_body=row_dict['body']))
         else:
             db = get_db()
             db.execute(
-                'UPDATE post SET title = ?, body = ?'
+                'UPDATE alarm SET date = ?, body = ?'
                 ' WHERE id = ?',
-                (title, body, id)
+                (form.date.data, form.body.data, id)
             )
             db.commit()
+            flash("Alarm Updated")
             return redirect(url_for('blog.index'))
-
-    return render_template('blog/update.html', post=post)
+    return render_template('blog/update.html', post=post, form=form, last_date=row_dict['date'], last_time=row_dict['time'], last_body=row_dict['body'])
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))
@@ -101,8 +100,9 @@ def update(id):
 def delete(id):
     get_post(id)
     db = get_db()
-    db.execute('DELETE FROM post WHERE id = ?', (id,))
+    db.execute('DELETE FROM alarm WHERE id = ?', (id,))
     db.commit()
+    flash("Alarm Deleted")
     return redirect(url_for('blog.index'))
 
 
@@ -136,5 +136,6 @@ def delete_all_alarms():
     db = get_db()
     db.execute('DELETE FROM alarm WHERE author_id = ?', (g.user['id'],))
     db.commit()
+    flash("All alarms Deleted")
     return redirect(url_for('blog.index'))
 

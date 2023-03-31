@@ -6,15 +6,6 @@
 {% endblock %}
 
 {% block content %}
-  <!-- <form method="post">
-    <label for="title">Date</label>
-    <input name="date" id="date" value="{{ request.form['date'] }}" required>
-    <label for="time">Time</label>
-    <input name="time" id="time" value="{{ request.form['time'] }}" required>
-    <input type="submit" value="Save">
-  </form> -->
-
-
   {% from "formhelpers.html" import render_field %}
     <form method=post>
       <dl>
@@ -22,6 +13,6 @@
         {{ render_field(form.time, value=time_placeholder) }}
         {{ render_field(form.body, value=body_placeholder) }}
       </dl>
-      <p><input type=submit value=Save>
+      <p><input type=submit value=Submit>
     </form>
 {% endblock %}

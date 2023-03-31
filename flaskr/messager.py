@@ -27,9 +27,11 @@ def send_text(body, phone):
                  )
     print(message.sid)
 
+
+
 def get_db():
         db = sqlite3.connect(
-            r"C:\Users\nicks\OneDrive\Documents\Projects\TextScheduler\var\flaskr-instance\flaskr.sqlite",
+            r".\var\flaskr-instance\flaskr.sqlite",
             detect_types=sqlite3.PARSE_DECLTYPES,
             check_same_thread=False
         )
