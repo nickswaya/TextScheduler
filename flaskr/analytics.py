@@ -38,13 +38,10 @@ def query_sent_messages():
     sent_messages = get_db().execute(
     'SELECT *'
     ' FROM sent_messages'
-
     ).fetchall()
 
     return [dict_from_row(sent_message) for sent_message in sent_messages]
 
 
-
-a = query_sent_messages()
-for row in a:
-    print(row)
+if __name__ == '__main__':
+    pass

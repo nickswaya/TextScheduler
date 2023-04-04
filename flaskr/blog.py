@@ -9,13 +9,11 @@ from wtforms import Form, StringField, validators
 from datetime import datetime
 from flaskr.analytics import dict_from_row
 
+
 bp = Blueprint('blog', __name__)
 
 date_regex = r"^(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])\/\d{4}$"
 time_regex = r"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
-
-
-
 
 
 class RegistrationForm(Form):
@@ -53,7 +51,6 @@ def index():
     ).fetchall()[0]
 
     return render_template('blog/index.html', posts=posts, total_user_count=total_user_count, total_alarm_count=total_alarm_count)
-
 
 
 def get_post(id, check_author=True):
