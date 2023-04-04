@@ -26,3 +26,11 @@ CREATE TABLE alarm (
   body TEXT NOT NULL,
   FOREIGN KEY (author_id) REFERENCES user (id)
 );
+
+CREATE TABLE sent_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  recipient TEXT NOT NULL,
+  send_time TIMESTAMP NOT NULL DEFAULT (datetime('now','localtime')),
+  phonenumber TEXT NOT NULL,
+  FOREIGN KEY (id) REFERENCES alarm (id)
+);

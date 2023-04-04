@@ -1,9 +1,9 @@
 import os
+import time
 from twilio.rest import Client
 from dotenv import load_dotenv
 from datetime import datetime
-import sqlite3
-import time
+from analytics import get_db, dict_from_row
 
 load_dotenv()
 
@@ -28,37 +28,11 @@ def send_text(body, phone):
     print(message.sid)
 
 
-
-def get_db():
-        db = sqlite3.connect(
-            r".\var\flaskr-instance\flaskr.sqlite",
-            detect_types=sqlite3.PARSE_DECLTYPES,
-            check_same_thread=False
-        )
-        db.row_factory = sqlite3.Row
-        return db
-
-
-def close_db(g=None):
-    db = g.pop('db', None)
-
-    if db is not None:
-        db.close()
-
-
-def init_db():
+def poll_alarms():
     db = get_db()
 
-    with open(r'schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
-
-
-
-def poll_alarms():
     current_date = datetime.strftime(datetime.now(), "%m/%d/%Y")
     current_time = datetime.strftime(datetime.now(), "%H:%M:%S")
-
-    db = get_db()
 
     alarms = db.execute(
         'SELECT *'
@@ -69,9 +43,15 @@ def poll_alarms():
 
     if alarms:
          for alarm in alarms:
-              send_text(alarm[5], alarm[9])
+            alarm_dict = dict_from_row(alarm)
+            send_text(alarm_dict['body'], alarm_dict['phonenumber'])
+            db.execute(
+            'INSERT INTO sent_messages (recipient, phonenumber)'
+            ' VALUES (?,?)',
+            (alarm['username'], alarm['phonenumber'],)
+            )
+            db.commit()
     db.close()
-
 
 
 while True:

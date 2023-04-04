@@ -7,21 +7,22 @@ from flaskr.auth import login_required
 from flaskr.db import get_db
 from wtforms import Form, StringField, validators
 from datetime import datetime
-
+from flaskr.analytics import dict_from_row
 
 bp = Blueprint('blog', __name__)
 
 date_regex = r"^(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])\/\d{4}$"
 time_regex = r"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 
-def dict_from_row(row):
-    return dict(zip(row.keys(), row))
+
+
 
 
 class RegistrationForm(Form):
     date = StringField('Date', [validators.Regexp(regex=date_regex, message="Must match date format 'MM/DD/YYYY'")], description="Enter as MM/DD/YYYY")
     time = StringField('Time', [validators.Regexp(regex=time_regex, message="Must match time format 'HH/MM/SS'")])
     body = StringField('Alarm Note')
+
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -107,7 +108,7 @@ def delete(id):
 
 
 @bp.route('/calendar', methods=('GET', 'POST'))
-async def calendar():
+def calendar():
     date_placeholder = datetime.strftime(datetime.now(), "%m/%d/%Y")
     time_placeholder = datetime.strftime(datetime.now(), "%H:%M:%S")
     body_placeholder = "Alarm Note to be sent"
