@@ -11,7 +11,10 @@
       <dl>
         {{ render_field(form.date, value=date_placeholder) }}
         {{ render_field(form.time, value=time_placeholder) }}
+        <input type="radio" name="options" id="am" value="am"> AM </input>
+        <input type="radio" name="options" id="pm" value="pm"> PM </input>
         {{ render_field(form.body, value=body_placeholder) }}
+        
       </dl>
       <p><input type=submit value=Submit>
     </form>

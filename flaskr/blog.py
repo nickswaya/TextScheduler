@@ -7,6 +7,7 @@ from flaskr.auth import login_required
 from flaskr.db import get_db
 from wtforms import Form, StringField, validators
 from datetime import datetime
+import datetime as dt
 from flaskr.analytics import dict_from_row
 
 
@@ -14,6 +15,15 @@ bp = Blueprint('blog', __name__)
 
 date_regex = r"^(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])\/\d{4}$"
 time_regex = r"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
+
+
+def convert_time_12_to_24(time_string):
+    """
+    Takes a time string in the format of "hh:mm:ss AM/PM" and converts it to the 24-hour format "%H:%M:%S".
+    """
+    time_12 = dt.datetime.strptime(time_string, '%I:%M:%S %p')
+    time_24 = time_12.strftime('%H:%M:%S')
+    return time_24
 
 
 class RegistrationForm(Form):
