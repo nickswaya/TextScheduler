@@ -3,10 +3,13 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from flaskr.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+
+
+def validate_phone(string):
+    return len(string) == 10 and string.isdigit()
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -24,7 +27,9 @@ def register():
             error = 'Password is required.'
         elif not phonenumber:
             error = 'Phone is required.'
-
+        elif not validate_phone(phonenumber):
+            error = 'Invalid Phone'
+            
         if error is None:
             try:
                 db.execute(
