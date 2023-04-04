@@ -134,6 +134,6 @@ def delete_all_alarms():
     db = get_db()
     db.execute('DELETE FROM alarm WHERE author_id = ?', (g.user['id'],))
     db.commit()
-    flash("All alarms Deleted")
+    flash("All Alarms Deleted")
     return redirect(url_for('blog.index'))
 
